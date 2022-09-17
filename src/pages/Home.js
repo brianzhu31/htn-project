@@ -3,7 +3,7 @@ import React from 'react'
 import $, { data } from 'jquery';
 import { isCompositeComponent } from 'react-dom/test-utils';
 
-function App() {
+function Home() {
 
 
   // stores all information about teams for a certain season in a map
@@ -80,4 +80,5 @@ function expectedWin(team1, team2, data) {
   );
 }
 
-export default App;
+export default Home
+;
