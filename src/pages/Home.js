@@ -5,11 +5,17 @@ import './Home.css'
 import $, { data } from 'jquery';
 import { isCompositeComponent } from 'react-dom/test-utils';
 
+// 3 dimensional array storing team information (indexed by season then team id)
 
 function Home() {
 
+  const arr = [[[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []],
+  [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []],
+  [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []]];
+
   let [team1, setTeam1] = useState('')
   let [team2, setTeam2] = useState('')
+  let [season, setSeason] = useState('')
 
   function handleTeam1Change(newTeam1) {
     setTeam1(newTeam1)
@@ -19,12 +25,19 @@ function Home() {
     setTeam2(newTeam2)
   }
 
+  function handleSeasonChange(newSeason) {
+    setSeason(newSeason)
+  }
+
   // stores all information about teams for a certain season in a map
   function loadTeams(season) {
 
+    // already has data
+    if (arr[season][1].length === 0) return;
+
     let totalpages = 0;
-    // 2 dimensional array storing team information (indexed by team id)
-    const arr = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
+    
+  
     // get total number of pages
     console.log('https://www.balldontlie.io/api/v1/games?seasons[]=' + season + '&per_page=100');
     $.ajax({
@@ -50,32 +63,31 @@ function Home() {
       })
     }
     console.log(arr);
-    return arr;
   }
 
   // calculates the expected win% of team1
   // data has to be calculated based on season
-  function expectedWin(team1, team2, data) {
+  function expectedWin() {
     // find all head to head games of team1 against team2
     let team1win = 0, team2win = 0, totalgamestogether = 0;
-    for (let game = 0; game < data[team1].length; ++game) {
+    for (let game = 0; game < data[season][team1].length; ++game) {
       // if the home team is team2
       //console.log(data[team1][game].home_team.id);
-      if (data[team1][game].home_team.id === team2) {
+      if (data[season][team1][game].home_team.id === team2) {
         // if team2 wins
-        if (data[team1][game].home_team_score > data[team1][game].visitor_team_score) {
+        if (data[season][team1][game].home_team_score > data[season][team1][game].visitor_team_score) {
           ++team2win;
-        } else if (data[team1][game].home_team_score < data[team1][game].visitor_team_score) {
+        } else if (data[season][team1][game].home_team_score < data[season][team1][game].visitor_team_score) {
           ++team1win;
         }
         ++totalgamestogether;
       }
       // if the visitor team is team 2
-      else if (data[team1][game].visitor_team.id === team2) {
+      else if (data[season][team1][game].visitor_team.id === team2) {
         // if team1 wins
-        if (data[team1][game].home_team_score > data[team1][game].visitor_team_score) {
+        if (data[season][team1][game].home_team_score > data[season][team1][game].visitor_team_score) {
           ++team1win;
-        } else if (data[team1][game].home_team_score < data[team1][game].visitor_team_score) {
+        } else if (data[season][team1][game].home_team_score < data[season][team1][game].visitor_team_score) {
           ++team2win;
         }
         ++totalgamestogether;
