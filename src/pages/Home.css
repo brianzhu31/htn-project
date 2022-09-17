@@ -1,0 +1,16 @@
+.home-container {
+    justify-content: center;
+    align-items: center;
+    padding-top: 100px;
+}
+
+.team-picker-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}  
+    
+
+.stats-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
