@@ -1,10 +1,12 @@
 import './App.css';
+import NewComponent from './newComponent';
 
 function App() {
   return (
-    <div className="App">
-      hello
-    </div>
+    <>
+      <div>Hello</div>
+      <NewComponent />
+    </>
   );
 }
 
