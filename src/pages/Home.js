@@ -67,44 +67,40 @@ function Home() {
 
   useEffect(() => {
     if(team1 === null || team2 === null){
-      console.log(team1)
       document.getElementById('stats-wrapper').style.display = 'none'
     }
   })
 
   // stores all information about teams for a certain season in a map
-  function loadTeams(season) {
+  function loadTeams() {
+
 
     // already has data
     // if (arr[season][1].length !== 0) return;
 
     let totalpages = 0;
-  
     // get total number of pages
-    console.log('https://www.balldontlie.io/api/v1/games?seasons[]=' + season + '&per_page=100');
     $.ajax({
       async: false,
-      url: 'https://www.balldontlie.io/api/v1/games?seasons[]=' + season + '&per_page=100',
+      url: 'https://www.balldontlie.io/api/v1/games?seasons[]=' + (season + 2019) + '&per_page=100',
       success: function (games) {
         totalpages = games.meta.total_pages;
-        console.log(games);
       }
     })
     // loop through total number of pages of times
     for (let i = 0; i < totalpages; ++i) {
       $.ajax({
         async: false,
-        url: 'https://www.balldontlie.io/api/v1/games?seasons[]=' + season + '&per_page=100&page=' + i,
+        url: 'https://www.balldontlie.io/api/v1/games?seasons[]=' + (season + 2019) + '&per_page=100&page=' + i,
         success: function (games) {
           // loop through all game id's on the page and put them into their respective arrays
           for (let game = 0; game < 100; ++game) {
-            arr[games.data[game].home_team.id].push(games.data[game]);
-            arr[games.data[game].visitor_team.id].push(games.data[game]);
+            arr[season][games.data[game].home_team.id].push(games.data[game]);
+            arr[season][games.data[game].visitor_team.id].push(games.data[game]);
           }
         }
       })
     }
-    console.log(arr);
   }
 
   // calculates the expected win% of team1
@@ -121,6 +117,7 @@ function Home() {
       // if the home team is team2
       //console.log(data[team1][game].home_team.id);
       if (arr[season][id1][game].home_team.id === id2) {
+        console.log(arr[season][id1][game].date);
         // if team2 wins
         if (arr[season][id1][game].home_team_score > arr[season][id1][game].visitor_team_score) {
           ++team2win;
@@ -131,6 +128,7 @@ function Home() {
       }
       // if the visitor team is team 2
       else if (arr[season][id1][game].visitor_team.id === id2) {
+        console.log(arr[season][id1][game].date);
         // if team1 wins
         if (arr[season][id1][game].home_team_score > arr[season][id1][game].visitor_team_score) {
           ++team1win;
@@ -140,7 +138,6 @@ function Home() {
         ++totalgamestogether;
       }
     }
-    console.log(team1win / totalgamestogether * 100);
     return team1win / totalgamestogether * 100;
   }
 
@@ -161,11 +158,11 @@ function Home() {
       <div id='stats-wrapper'>
         <StatsCard 
           name = {team1}
-          winPercent = {expectedWin()}
+          winPercent = {expectedWin()} 
         />
         <StatsCard 
           name = {team2}
-          winPercent = {100 - expectedWin()}
+          winPercent = {expectedWin()}
         />
       </div>
     </div>
