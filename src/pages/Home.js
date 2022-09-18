@@ -1,16 +1,20 @@
-import React, {useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 import Card from '../components/Card'
 import StatsCard from '../components/StatsCard'
 import './Home.css'
 import $, { data } from 'jquery';
 import { isCompositeComponent } from 'react-dom/test-utils';
+import { FormControl } from '@mui/material';
+import InputLabel from '@mui/material/InputLabel';
+import NativeSelect from '@mui/material/NativeSelect';
 
-
-function Home() {
-
-  const arr = [[[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []],
+let arr = [[[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []],
   [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []],
   [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []]];
+
+let isLoaded = false;
+  
+function Home() {
 
   const teams = [
     'Atlanta Hawks',
@@ -44,37 +48,55 @@ function Home() {
     'Utah Jazz',
     'Washington Wizards'
   ]
-  
+
   const teamtoid = new Map();
   for (let i = 0; i < 30; ++i) {
-      teamtoid.set(teams[i], i + 1);
+    teamtoid.set(teams[i], i + 1);
   }
 
-  let [team1, setTeam1] = useState('')
-  let [team2, setTeam2] = useState('')
-  
-  let [team1wp, setTeam1wp] = useState()
-  let [team2wp, setTeam2wp] = useState()
+  let [team1, setTeam1] = useState(null)
+  let [team2, setTeam2] = useState(null)
 
-  let [season, setSeason] = useState(2021-2019)
+  let [team1h2h, setTeam1h2h] = useState(0)
+  let [team2h2h, setTeam2h2h] = useState(0)
 
+  let [team1wp, setTeam1wp] = useState(null)
+  let [team2wp, setTeam2wp] = useState(null)
+
+  let [season, setSeason] = useState(2)
+
+  let [team1Record, setTeam1Record] = useState(null)
+  let [team2Record, setTeam2Record] = useState(null)
 
   useEffect(() => {
-    if(team1 !== '' && team2 !== ''){
+    if (team1 !== null && team2 !== null) {
       document.getElementById('stats-wrapper').style.display = 'grid'
+      if(!isLoaded){
+        loadTeams()
+        isLoaded = true
+        console.log(arr)
+      }
+      expectedWin()
+      setSeasonRecord()
     }
   })
 
   useEffect(() => {
-    if(team1 === null || team2 === null){
+    if (team1 === null || team2 === null) {
       document.getElementById('stats-wrapper').style.display = 'none'
     }
   })
 
+
+  function imageSetter(team) {
+    if(team === '' || team === null){
+      return 'white'
+    }
+    return team
+  }
+
   // stores all information about teams for a certain season in a map
   function loadTeams() {
-
-
     // already has data
     // if (arr[season][1].length !== 0) return;
 
@@ -101,14 +123,15 @@ function Home() {
         }
       })
     }
+
   }
 
   // calculates the expected win% of team1
   // data has to be calculated based on season
   function expectedWin() {
 
-    loadTeams(season)
     console.log(arr)
+
     // find all head to head games of team1 against team2
     const id1 = teamtoid.get(team1)
     const id2 = teamtoid.get(team2)
@@ -138,32 +161,99 @@ function Home() {
         ++totalgamestogether;
       }
     }
-    return team1win / totalgamestogether * 100;
+    setTeam1h2h(team1win + ' - ' + team2win)
+    setTeam2h2h(team2win + ' - ' + team1win)
+    setTeam1wp(team1win / totalgamestogether * 100)
+    setTeam2wp(100 - team1win / totalgamestogether * 100)
+  }
+
+
+  function setSeasonRecord(){
+    const id1 = teamtoid.get(team1)
+    const id2 = teamtoid.get(team2)
+    let team1totalwin = 0, team2totalwin = 0, team1totalgames = 0, team2totalgames = 0;
+    for (let game = 0; game < arr[season][id1].length; ++game) {
+      if (arr[season][id1][game].home_team.id === id1) {
+        if (arr[season][id1][game].home_team_score > arr[season][id1][game].visitor_team_score) {
+          ++team1totalwin
+        }
+      }
+      if (arr[season][id1][game].visitor_team.id === id1) {
+        if (arr[season][id1][game].home_team_score < arr[season][id1][game].visitor_team_score) {
+          ++team1totalwin
+        }
+      }
+      ++team1totalgames
+    }
+
+    for (let game = 0; game < arr[season][id2].length; ++game) {
+      if (arr[season][id2][game].home_team.id === id2) {
+        if (arr[season][id2][game].home_team_score > arr[season][id2][game].visitor_team_score) {
+          ++team2totalwin
+        }
+      }
+      if (arr[season][id2][game].visitor_team.id === id2) {
+        if (arr[season][id2][game].home_team_score < arr[season][id2][game].visitor_team_score) {
+          ++team2totalwin
+        }
+      }
+      ++team2totalgames
+    }
+
+    setTeam1Record(team1totalwin + ' - ' + (team1totalgames-team1totalwin))
+    setTeam2Record(team2totalwin + ' - ' + (team2totalgames-team2totalwin))
   }
 
   return (
     <div className='home-container'>
+      <div className='season-selector-container'>
+        <FormControl className='season-selector'>
+          <InputLabel variant="standard" htmlFor="uncontrolled-native">
+            Season
+          </InputLabel>
+          <NativeSelect
+            defaultValue={2}
+            inputProps={{
+              name: 'season',
+              id: 'uncontrolled-native',
+            }}
+            onChange={(event, value) => setSeason(value)}
+          >
+            <option value={0}>2019-2020</option>
+            <option value={1}>2020-2021</option>
+            <option value={2}>2021-2022</option>
+          </NativeSelect>
+        </FormControl>
+      </div>
       <div className='team-picker-wrapper'>
-        <Card 
-          key='team1' 
+        <Card
+          key='team1'
           onChange={value => setTeam1(value)}
-          src={'/images/' + team1 + '.png'}
+          src={'/images/' + imageSetter(team1) + '.png'}
         />
-        <Card 
-          key='team2' 
-          onChange={value => setTeam2(value)}
-          src={'/images/' + team2 + '.png'}
+        <Card
+          key='team2'
+          onChange={val => setTeam2(val)}
+          src={'/images/' + imageSetter(team2) + '.png'}
         />
       </div>
       <div id='stats-wrapper'>
-        <StatsCard 
-          name = {team1}
-          winPercent = {expectedWin()} 
-        />
-        <StatsCard 
-          name = {team2}
-          winPercent = {expectedWin()}
-        />
+        <div className='stats-card-container'>
+          <StatsCard
+            name={team1}
+            h2h={team1h2h}
+            winPercent={Math.round(team1wp * 100) / 100}
+            seasonRecord={team1Record}
+          />
+        </div>
+        <div className='stats-card-container'>
+          <StatsCard
+            name={team2}
+            h2h={team2h2h}
+            winPercent={Math.round(team2wp * 100) / 100}
+            seasonRecord={team2Record}
+          />
+        </div>
       </div>
     </div>
   )

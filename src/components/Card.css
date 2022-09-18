@@ -2,17 +2,22 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 0 auto;
     width: 450px;
     height: 380px;
-    border: solid;
 }
 
 .team-logo-container {
+    justify-content: center;
+    align-self: center;
     width: 450px;
+    padding-bottom: 20px;
 }
 
 .team-logo {
+    justify-content: center;
+    align-self: center;
     width: 100%;
-    height: 100%;
+    height: 280px;
+    object-fit: contain;
+    padding: 20px 20px;
 }

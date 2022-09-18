@@ -1,16 +1,38 @@
 .home-container {
+    display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding-top: 100px;
+    padding-top: 30px;
 }
 
 .team-picker-wrapper {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    grid-gap: 100px;
 }  
     
-
-.stats-wrapper {
-    display: grid;
+#stats-wrapper {
+    display: none;
     grid-template-columns: 1fr 1fr;
+    grid-gap: 160px;
+    padding-top: 10px;
 }
+
+.season-selector-container {
+    justify-content: center;
+    align-items: center;
+    padding: 40px 40px;
+}
+
+.season-selector {
+    width: 200px;
+}
+
+.stats-card-container {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+}
+
