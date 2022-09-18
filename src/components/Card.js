@@ -3,7 +3,7 @@ import Autocomplete from '@mui/material/Autocomplete'
 import { TextField } from '@mui/material'
 import './Card.css'
 
-function Card(props, {setTeam}) {
+function Card(props) {
 
   const teams = [
     'Atlanta Hawks',
@@ -24,7 +24,7 @@ function Card(props, {setTeam}) {
     'Miami Heat',
     'Milwaukee Bucks',
     'Minnesota Timberwolves',
-    'New Orleans Hornets',
+    'New Orleans Pelicans',
     'New York Knicks',
     'Oklahoma City Thunder',
     'Orlando Magic',
@@ -38,14 +38,10 @@ function Card(props, {setTeam}) {
     'Washington Wizards'
   ]
 
-  function setTeam(value) {
-    setTeam(value)
-  }
-
   return (
     <div className='card-container'>
         <div className='team-logo-container'>
-            <img className='team-logo' src={props.img} />
+            <img className='team-logo' src={props.src} />
         </div>
         <div className='searchbar-container'>
           <Autocomplete
@@ -54,7 +50,7 @@ function Card(props, {setTeam}) {
             options={teams}
             sx={{ width: 300 }}
             renderInput={(params) => <TextField {...params} label="Team" />}
-            onChange={(event, value) => setTeam(value)}
+            onChange={(event, value) => props.onChange(value)}
           />
         </div>
     </div>
