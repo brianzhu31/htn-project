@@ -8,7 +8,7 @@ import { isCompositeComponent } from 'react-dom/test-utils';
 
 function Home() {
 
-  const arr = [[[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []],
+  let arr = [[[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []],
   [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []],
   [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []]];
 
@@ -58,10 +58,17 @@ function Home() {
 
   let [season, setSeason] = useState(2021-2019)
 
+  let [isLoaded, setIsLoaded] = useState(false)
+
 
   useEffect(() => {
     if(team1 !== '' && team2 !== ''){
       document.getElementById('stats-wrapper').style.display = 'grid'
+      if(!isLoaded) {
+        loadTeams()
+        setIsLoaded(true)
+      }
+      expectedWin()
     }
   })
 
@@ -71,9 +78,9 @@ function Home() {
     }
   })
 
+
   // stores all information about teams for a certain season in a map
   function loadTeams() {
-
 
     // already has data
     // if (arr[season][1].length !== 0) return;
@@ -101,13 +108,13 @@ function Home() {
         }
       })
     }
+    
   }
 
   // calculates the expected win% of team1
   // data has to be calculated based on season
   function expectedWin() {
 
-    loadTeams(season)
     console.log(arr)
     // find all head to head games of team1 against team2
     const id1 = teamtoid.get(team1)
@@ -138,7 +145,8 @@ function Home() {
         ++totalgamestogether;
       }
     }
-    return team1win / totalgamestogether * 100;
+    setTeam1wp(team1win / totalgamestogether * 100)
+    setTeam2wp(100 - team1win)
   }
 
   return (
@@ -158,11 +166,11 @@ function Home() {
       <div id='stats-wrapper'>
         <StatsCard 
           name = {team1}
-          winPercent = {expectedWin()} 
+          winPercent = {team1wp} 
         />
         <StatsCard 
           name = {team2}
-          winPercent = {expectedWin()}
+          winPercent = {team2wp}
         />
       </div>
     </div>
