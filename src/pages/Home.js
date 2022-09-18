@@ -1,11 +1,10 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import Card from '../components/Card'
 import StatsCard from '../components/StatsCard'
 import './Home.css'
 import $, { data } from 'jquery';
 import { isCompositeComponent } from 'react-dom/test-utils';
 
-// 3 dimensional array storing team information (indexed by season then team id)
 
 function Home() {
 
@@ -13,30 +12,73 @@ function Home() {
   [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []],
   [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []]];
 
+  const teams = [
+    'Atlanta Hawks',
+    'Boston Celtics',
+    'Brooklyn Nets',
+    'Charlotte Hornets',
+    'Chicago Bulls',
+    'Cleveland Cavaliers',
+    'Dallas Mavericks',
+    'Denver Nuggets',
+    'Detroit Pistons',
+    'Golden State Warriors',
+    'Houston Rockets',
+    'Indiana Pacers',
+    'LA Clippers',
+    'LA Lakers',
+    'Memphis Grizzlies',
+    'Miami Heat',
+    'Milwaukee Bucks',
+    'Minnesota Timberwolves',
+    'New Orleans Hornets',
+    'New York Knicks',
+    'Oklahoma City Thunder',
+    'Orlando Magic',
+    'Philadelphia Sixers',
+    'Phoenix Suns',
+    'Portland Trail Blazers',
+    'Sacramento Kings',
+    'San Antonio Spurs',
+    'Toronto Raptors',
+    'Utah Jazz',
+    'Washington Wizards'
+  ]
+  
+  const teamtoid = new Map();
+  for (let i = 0; i < 30; ++i) {
+      teamtoid.set(teams[i], i + 1);
+  }
+
   let [team1, setTeam1] = useState('')
   let [team2, setTeam2] = useState('')
-  let [season, setSeason] = useState('')
+  
+  let [team1wp, setTeam1wp] = useState()
+  let [team2wp, setTeam2wp] = useState()
 
-  function handleTeam1Change(newTeam1) {
-    setTeam1(newTeam1)
-  }
+  let [season, setSeason] = useState(2021-2019)
 
-  function handleTeam2Change(newTeam2) {
-    setTeam2(newTeam2)
-  }
 
-  function handleSeasonChange(newSeason) {
-    setSeason(newSeason)
-  }
+  useEffect(() => {
+    if(team1 !== '' && team2 !== ''){
+      document.getElementById('stats-wrapper').style.display = 'grid'
+    }
+  })
+
+  useEffect(() => {
+    if(team1 === null || team2 === null){
+      console.log(team1)
+      document.getElementById('stats-wrapper').style.display = 'none'
+    }
+  })
 
   // stores all information about teams for a certain season in a map
   function loadTeams(season) {
 
     // already has data
-    if (arr[season][1].length === 0) return;
+    // if (arr[season][1].length !== 0) return;
 
     let totalpages = 0;
-    
   
     // get total number of pages
     console.log('https://www.balldontlie.io/api/v1/games?seasons[]=' + season + '&per_page=100');
@@ -68,46 +110,63 @@ function Home() {
   // calculates the expected win% of team1
   // data has to be calculated based on season
   function expectedWin() {
+
+    loadTeams(season)
+    console.log(arr)
     // find all head to head games of team1 against team2
+    const id1 = teamtoid.get(team1)
+    const id2 = teamtoid.get(team2)
     let team1win = 0, team2win = 0, totalgamestogether = 0;
-    for (let game = 0; game < data[season][team1].length; ++game) {
+    for (let game = 0; game < arr[season][id1].length; ++game) {
       // if the home team is team2
       //console.log(data[team1][game].home_team.id);
-      if (data[season][team1][game].home_team.id === team2) {
+      if (arr[season][id1][game].home_team.id === id2) {
         // if team2 wins
-        if (data[season][team1][game].home_team_score > data[season][team1][game].visitor_team_score) {
+        if (arr[season][id1][game].home_team_score > arr[season][id1][game].visitor_team_score) {
           ++team2win;
-        } else if (data[season][team1][game].home_team_score < data[season][team1][game].visitor_team_score) {
+        } else if (arr[season][id1][game].home_team_score < arr[season][id1][game].visitor_team_score) {
           ++team1win;
         }
         ++totalgamestogether;
       }
       // if the visitor team is team 2
-      else if (data[season][team1][game].visitor_team.id === team2) {
+      else if (arr[season][id1][game].visitor_team.id === id2) {
         // if team1 wins
-        if (data[season][team1][game].home_team_score > data[season][team1][game].visitor_team_score) {
+        if (arr[season][id1][game].home_team_score > arr[season][id1][game].visitor_team_score) {
           ++team1win;
-        } else if (data[season][team1][game].home_team_score < data[season][team1][game].visitor_team_score) {
+        } else if (arr[season][id1][game].home_team_score < arr[season][id1][game].visitor_team_score) {
           ++team2win;
         }
         ++totalgamestogether;
       }
     }
-    console.log(team1 / totalgamestogether * 100);
-    return team1 / totalgamestogether * 100;
+    console.log(team1win / totalgamestogether * 100);
+    return team1win / totalgamestogether * 100;
   }
 
   return (
     <div className='home-container'>
-      <h1>Team: {team1}</h1>
-      <h1>Team: {team2}</h1>
       <div className='team-picker-wrapper'>
-        <Card key='team1' setTeam={handleTeam1Change}/>
-        <Card key='team2' setTeam={handleTeam2Change}/>
+        <Card 
+          key='team1' 
+          onChange={value => setTeam1(value)}
+          src={'/images/' + team1 + '.png'}
+        />
+        <Card 
+          key='team2' 
+          onChange={value => setTeam2(value)}
+          src={'/images/' + team2 + '.png'}
+        />
       </div>
-      <div className='stats-wrapper'>
-        <StatsCard />
-        <StatsCard />
+      <div id='stats-wrapper'>
+        <StatsCard 
+          name = {team1}
+          winPercent = {expectedWin()}
+        />
+        <StatsCard 
+          name = {team2}
+          winPercent = {100 - expectedWin()}
+        />
       </div>
     </div>
   )
